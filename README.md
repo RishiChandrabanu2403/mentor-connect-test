@@ -1,16 +1,55 @@
-# React + Vite
+# Mentor Connect
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+A web application that helps students discover suitable mentors based on their interests, career goals, and areas of expertise.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **Mentor Matching:** Recommends mentors based on a student's query and relevant expertise.
+- **Mentor Profiles:** Displays mentor information and areas of specialisation.
+- **Booking Workflow:** Supports mentoring session booking and status management.
+- **Role-Based Views:** Provides interfaces for student, mentor, and admin workflows.
 
-## React Compiler
+## Tech Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- React
+- Vite
+- JavaScript
+- CSS
+- Supabase
 
-## Expanding the Oxlint configuration
+## Getting Started
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+### Prerequisites
+
+- Node.js and npm
+- Supabase project credentials, if required by the configured application
+
+### Installation
+
+Clone the repository:
+
+```bash
+git clone https://github.com/RishiChandrabanu2403/mentor-connect-test.git
+cd mentor-connect-test
+npm install
+```
+
+Configure the required environment variables in a local `.env.local` file. Do not commit credentials or secret keys.
+
+Start the development server:
+
+```bash
+npm run dev
+```
+
+Open the local URL printed in the terminal.
+
+## Project Structure
+
+- `src/` — React application components, styles, and Supabase integration
+- `public/` — Public assets and CSV data files
+- `package.json` — Dependencies and scripts
+
+## Notes
+
+This project was developed as a technical assignment. Features requiring external services depend on the corresponding configuration and permissions.
