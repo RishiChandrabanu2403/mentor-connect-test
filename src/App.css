@@ -1,0 +1,366 @@
+
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap');
+
+:root {
+  font-family: 'DM Sans', sans-serif;
+  color: #242a32;
+  background: #F5F0E6;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-optical-sizing: auto;
+  font-weight: 400;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; min-width: 320px; min-height: 100vh; }
+button, input { font: inherit; }
+button { cursor: pointer; }
+
+.app-shell { min-height: 100vh; display: flex; }
+
+.sidebar {
+  width: 245px; flex-shrink: 0; background: #fff;
+  border-right: 1px solid #e9ebef; padding: 28px 17px;
+  display: flex; flex-direction: column; min-height: 100vh;
+}
+
+.brand { display: flex; align-items: center; gap: 11px; padding: 0 9px 40px; }
+.brand-mark {
+  width: 40px; height: 40px; border-radius: 13px; background: #5e68cf;
+  color: #fff; display: grid; place-items: center; font-size: 27px;
+  font-family: Georgia, serif; font-weight: bold;
+}
+.brand strong { display: block; font-family: Manrope, sans-serif; font-size: 17px; letter-spacing: -0.8px; }
+.brand strong span { color: #646bd1; }
+.brand small { display: block; color: #969ba5; font-size: 9px; letter-spacing: 1.4px; margin-top: 3px; }
+
+.sidebar-label { font-size: 10px; color: #9ba0a9; font-weight: 700; letter-spacing: 1.5px; padding: 0 12px 12px; }
+
+.nav-item {
+  width: 100%; border: 0; background: transparent; border-radius: 9px;
+  text-align: left; padding: 12px; margin: 3px 0; color: #727985;
+  display: flex; align-items: center; gap: 12px; font-size: 13px;
+}
+.nav-item > span { width: 19px; font-size: 17px; text-align: center; }
+.nav-item.active { background: #f0f0ff; color: #555dc0; font-weight: 700; }
+
+.sidebar-bottom {
+  margin-top: auto; padding: 18px 5px 0; border-top: 1px solid #eceef2;
+  display: flex; align-items: center; gap: 10px;
+}
+.profile-avatar, .top-avatar {
+  width: 35px; height: 35px; border-radius: 50%; display: grid; place-items: center;
+  background: #ecebff; color: #595fc2; font-weight: 700;
+}
+.sidebar-bottom strong { display: block; font-size: 12px; }
+.sidebar-bottom small { display: block; color: #9a9faa; font-size: 10px; margin-top: 4px; }
+.profile-dots { margin-left: auto; color: #8a8e99; }
+
+.main-content { flex: 1; min-width: 0; }
+.topbar {
+  height: 68px; background: #fff; border-bottom: 1px solid #eceef2;
+  display: flex; align-items: center; justify-content: space-between; padding: 0 36px;
+}
+.breadcrumb { font-size: 12px; color: #737984; }
+.breadcrumb span { padding: 0 9px; color: #b2b6bd; }
+.topbar-right { display: flex; align-items: center; gap: 9px; font-size: 11px; color: #777e88; }
+.status-dot { display: inline-block; width: 7px; height: 7px; background: #43b987; border-radius: 50%; }
+.top-avatar { margin-left: 12px; width: 31px; height: 31px; }
+
+.welcome {
+  margin: 29px 36px 23px; min-height: 218px; border-radius: 14px;
+  background: #eeeefe; padding: 34px 39px; display: flex; align-items: center;
+  justify-content: space-between; overflow: hidden; position: relative;
+}
+.eyebrow { font-size: 9px; color: #666cc7; font-weight: 700; letter-spacing: 1.7px; }
+.welcome h1, .simple-page h1 {
+  font-family: Manrope, sans-serif; font-size: clamp(27px, 3vw, 37px);
+  line-height: 1.25; letter-spacing: -1.7px; margin: 14px 0 10px; font-weight: 700;
+}
+.welcome h1 span { color: #666ac8; }
+.welcome p { font-size: 12px; color: #757a88; line-height: 1.8; max-width: 410px; margin: 0; }
+
+.welcome-art { width: 205px; height: 150px; position: relative; margin-right: 30px; flex-shrink: 0; }
+.art-circle { position: absolute; border-radius: 50%; }
+.art-circle-one { width: 145px; height: 145px; background: #d8d8fb; top: -1px; left: 24px; }
+.art-circle-two { width: 91px; height: 91px; background: #b8baf0; top: 26px; left: 51px; }
+.art-card {
+  position: absolute; top: 40px; left: 5px; width: 181px; padding: 14px;
+  border-radius: 12px; background: #fff; box-shadow: 0 12px 30px #7375b526;
+  transform: rotate(-5deg);
+}
+.art-card > span { display: block; color: #696dcb; font-size: 23px; }
+.art-card strong, .art-card small { display: block; }
+.art-card strong { font-size: 12px; margin-top: 5px; }
+.art-card small { color: #9398a2; font-size: 10px; margin-top: 4px; }
+
+.chat-layout {
+  display: grid; grid-template-columns: minmax(0, 1.8fr) minmax(210px, 0.85fr);
+  gap: 22px; margin: 0 36px 35px; align-items: start;
+}
+.chat-panel, .side-panel { background: #fff; border: 1px solid #e9ebef; border-radius: 12px; }
+.panel-heading {
+  padding: 18px 20px; border-bottom: 1px solid #eff0f3;
+  display: flex; align-items: center; gap: 11px;
+}
+.assistant-icon, .bot-avatar {
+  width: 36px; height: 36px; flex-shrink: 0; display: grid; place-items: center;
+  background: #eeeeff; color: #666acb; border-radius: 11px; font-size: 19px;
+}
+.panel-heading strong { display: block; font-size: 12px; }
+.panel-heading small { display: block; font-size: 10px; color: #9297a1; margin-top: 5px; }
+.panel-heading small .status-dot { margin-right: 5px; }
+.powered-label { margin-left: auto; background: #f1f0ff; color: #676ac2; padding: 6px 8px; border-radius: 5px; font-size: 8px; letter-spacing: 1px; font-weight: 700; }
+
+.chat-messages { padding: 22px 19px; min-height: 230px; max-height: 440px; overflow-y: auto; }
+.message-row { display: flex; gap: 9px; margin-bottom: 16px; align-items: flex-start; }
+.message-bubble { max-width: 88%; border-radius: 4px 12px 12px 12px; background: #f4f5f8; color: #4e5460; padding: 12px 14px; font-size: 12px; line-height: 1.8; }
+.message-row.user { justify-content: flex-end; }
+.message-row.user .message-bubble { background: #666bc9; color: #fff; border-radius: 12px 4px 12px 12px; }
+.bot-avatar { width: 29px; height: 29px; border-radius: 9px; font-size: 15px; }
+
+.chat-composer { margin: 0 17px; padding: 6px; display: flex; gap: 7px; border: 1px solid #e5e7ed; border-radius: 9px; }
+.chat-composer input { flex: 1; min-width: 0; border: 0; outline: 0; padding: 8px; font-size: 12px; color: #353a44; background: transparent; }
+.chat-composer input::placeholder { color: #a3a7b0; }
+.chat-composer button { width: 34px; height: 34px; border: 0; border-radius: 7px; background: #666bc9; color: #fff; font-size: 21px; }
+.chat-disclaimer { padding: 12px 20px 16px; font-size: 9px; color: #a0a4ad; }
+
+.side-panel { padding: 18px; }
+.side-panel-heading { display: flex; justify-content: space-between; align-items: center; gap: 5px; margin-bottom: 15px; }
+.side-panel-heading strong { font-size: 12px; }
+.side-panel-heading span { color: #999eaa; font-size: 8px; letter-spacing: 1px; }
+.progress-card { border-radius: 10px; background: #f5f5ff; padding: 16px; }
+.progress-number { font-family: Manrope, sans-serif; font-size: 28px; color: #6268c7; font-weight: 700; margin-bottom: 13px; }
+.progress-number span { color: #b4b6d8; font-size: 14px; }
+.progress-card > strong, .tip-card > strong { display: block; font-size: 12px; }
+.progress-card p, .tip-card p { font-size: 10px; color: #828793; line-height: 1.8; }
+.progress-track { height: 4px; background: #e1e2f7; border-radius: 10px; margin-top: 15px; overflow: hidden; }
+.progress-track div { width: 33%; height: 100%; background: #6c70cd; border-radius: 10px; }
+.tip-card { padding: 20px 2px 3px; }
+.tip-icon { color: #6b70cd; font-size: 25px; margin-bottom: 7px; }
+.tip-card button { border: 0; background: transparent; padding: 5px 0; color: #656bc8; font-size: 10px; font-weight: 700; }
+.tip-card button span { margin-left: 7px; }
+.booking-notice { margin-top: 17px; border: 1px solid #d8eadf; background: #f2fbf5; border-radius: 9px; padding: 13px; }
+.booking-notice strong { font-size: 11px; }
+.booking-notice p { font-size: 12px; margin-bottom: 6px; }
+.booking-notice small { color: #65806e; font-size: 9px; }
+
+.recommendations { margin: 5px 0 12px 38px; }
+.recommendation-title { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 10px; }
+.recommendation-title strong { font-size: 12px; }
+.recommendation-title span { font-size: 9px; color: #9398a2; }
+.mentor-card { border: 1px solid #eceef2; border-radius: 10px; padding: 12px; display: flex; gap: 10px; align-items: flex-start; margin-bottom: 9px; }
+.mentor-avatar { width: 37px; height: 37px; border-radius: 11px; display: grid; place-items: center; color: #4e5365; font-size: 11px; font-weight: 700; flex-shrink: 0; }
+.mentor-info { flex: 1; min-width: 0; }
+.mentor-info strong, .mentor-info span, .mentor-info small { display: block; }
+.mentor-info strong { font-size: 11px; }
+.mentor-info span { font-size: 10px; color: #686dc8; margin-top: 4px; }
+.mentor-info small { color: #9095a0; font-size: 9px; margin-top: 6px; line-height: 1.6; }
+.mentor-info p { font-size: 9px; color: #747a86; line-height: 1.6; }
+.book-button, .primary-button { background: #656bc8; color: #fff; border: 0; border-radius: 6px; padding: 8px 10px; font-size: 10px; font-weight: 700; }
+.book-button { flex-shrink: 0; }
+
+.simple-page { padding: 45px 40px; }
+.simple-page h1 { font-size: 34px; }
+.page-intro { color: #7c828d; font-size: 13px; margin-bottom: 28px; }
+.empty-state { max-width: 490px; border: 1px dashed #dfe1e8; background: #fff; border-radius: 12px; padding: 35px; text-align: center; }
+.empty-state > div { font-size: 32px; color: #696fce; }
+.empty-state h3 { font-family: Manrope, sans-serif; font-size: 16px; }
+.empty-state p { color: #868b96; font-size: 12px; line-height: 1.8; }
+.session-card { display: flex; gap: 15px; align-items: center; background: #fff; border: 1px solid #e8eaf0; padding: 20px; border-radius: 12px; max-width: 500px; }
+.session-card strong { font-size: 13px; }
+.session-card p { font-size: 12px; color: #777d88; }
+.demo-tag { color: #777bba; font-size: 10px; }
+
+@media (max-width: 1000px) {
+  .sidebar { width: 200px; }
+  .welcome, .chat-layout { margin-left: 22px; margin-right: 22px; }
+  .welcome { padding: 28px; }
+  .welcome-art { margin-right: 0; transform: scale(.85); }
+  .chat-layout { grid-template-columns: minmax(0, 1fr); }
+  .side-panel { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+  .side-panel-heading { grid-column: 1 / -1; margin-bottom: 0; }
+}
+@media (max-width: 650px) {
+  .sidebar { width: 65px; padding: 20px 8px; }
+  .brand { padding: 0 3px 35px; }
+  .brand > div:last-child, .sidebar-label, .nav-item:not(.active), .nav-item.active { font-size: 0; }
+  .brand-mark { width: 40px; }
+  .nav-item { justify-content: center; padding: 12px 5px; }
+  .nav-item > span { font-size: 17px; }
+  .sidebar-bottom { justify-content: center; }
+  .sidebar-bottom > div:not(.profile-avatar), .profile-dots { display: none; }
+  .topbar { padding: 0 15px; height: 57px; }
+  .topbar-right { font-size: 0; gap: 4px; }
+  .top-avatar { font-size: 12px; }
+  .welcome { margin: 16px 12px; padding: 22px; min-height: 190px; }
+  .welcome h1 { font-size: 26px; }
+  .welcome p { max-width: 280px; }
+  .welcome-art { display: none; }
+  .chat-layout { margin: 0 12px 20px; }
+  .powered-label { display: none; }
+  .chat-messages { padding: 16px 12px; }
+  .recommendations { margin-left: 0; }
+  .mentor-card { flex-wrap: wrap; }
+  .side-panel { display: block; }
+  .side-panel-heading { margin-bottom: 14px; }
+  .tip-card { padding-top: 20px; }
+  .simple-page { padding: 30px 18px; }
+}
+
+
+/* Fix day dropdown readability in the Availability page */
+select option {
+  background-color: #ffffff;
+  color: #12372b;
+}
+
+/* Keep dropdowns readable and consistent with the dark green theme */
+select {
+  color: #12372b;
+  background-color: #ffffff;
+}
+
+/* Improve keyboard focus visibility */
+select:focus {
+  outline: 2px solid #16a879;
+  outline-offset: 2px;
+}
+
+/* Mentor Connect: polished action-plan page and shared interaction states */
+.action-plan-page {
+  width: 100%;
+  max-width: 1120px;
+  margin-inline: auto;
+  text-align: left;
+  color: #183127;
+}
+
+.action-plan-page .page-intro {
+  max-width: 660px;
+  line-height: 1.75;
+}
+
+.action-plan-page .action-plan-overview,
+.action-plan-page .action-plan-list {
+  box-shadow: 0 8px 28px rgba(20, 54, 37, 0.035);
+}
+
+.action-plan-page .action-plan-list {
+  transition: border-color 180ms ease, box-shadow 180ms ease;
+}
+
+.action-plan-page .action-plan-list:hover {
+  border-color: #dbe7df;
+  box-shadow: 0 10px 30px rgba(20, 54, 37, 0.055);
+}
+
+.action-plan-page .action-plan-task {
+  transition: background-color 160ms ease;
+}
+
+.action-plan-page .action-plan-task:hover {
+  background-color: #fbfdfb;
+}
+
+.action-plan-page .action-plan-task-mark {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid #e3eae5;
+  border-radius: 50%;
+  background: #fff;
+  font-size: 15px;
+}
+
+button,
+.nav-item,
+.book-button,
+.primary-button {
+  transition: background-color 160ms ease, border-color 160ms ease,
+    box-shadow 160ms ease, transform 160ms ease;
+}
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 2px solid #16a879;
+  outline-offset: 3px;
+}
+
+@media (max-width: 700px) {
+  .action-plan-page {
+    padding-inline: 18px;
+  }
+
+  .action-plan-page .action-plan-overview {
+    gap: 12px;
+  }
+
+  .action-plan-page .action-plan-task-copy {
+    font-size: 13px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+
+/* Warm beige background across the entire application */
+html,
+body,
+#root {
+  min-height: 100%;
+  background-color: #F5F0E6;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+/* Keep the dashboard canvas warm beige */
+.app-shell,
+.main-content {
+  background-color: #F5F0E6;
+}
+
+.main-content {
+  min-height: 100vh;
+}
+
+/* Login and portal-selection screens can use different wrapper names */
+.role-selection-page,
+.portal-selection-page,
+.student-login-page,
+.login-page,
+.auth-page {
+  background-color: #F5F0E6 !important;
+  min-height: 100vh;
+}
+
+/* Preserve white surfaces for cards and the dashboard header */
+.sidebar,
+.topbar,
+.chat-panel,
+.side-panel,
+.empty-state,
+.session-card {
+  background-color: #FFFFFF;
+}
+
+/* Keep the beige background visible below short pages too */
+#root {
+  min-height: 100vh;
+}

@@ -1,0 +1,81 @@
+
+/* Mentor Connect — responsive layout safeguards
+   Portal appearance and spacing are handled by portal-polish.css. */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  min-width: 0;
+  min-height: 100%;
+  margin: 0;
+}
+
+body {
+  overflow-x: hidden;
+}
+
+/* Prevent narrow bordered frames and horizontal overflow. */
+#root,
+#root > *,
+.app-shell,
+.welcome-screen,
+.portal-selection-page,
+.role-selector-page,
+.role-selection-page {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  margin-left: 0;
+  margin-right: 0;
+  border-right: 0;
+  outline: 0;
+}
+
+/* Allow the portal chooser to use the available viewport. */
+body:has(.role-selection-card) {
+  overflow-y: auto;
+}
+
+body:has(.role-selection-card) #root {
+  min-height: 100vh;
+}
+
+body:has(.role-selection-card) .app-shell {
+  min-height: 100vh;
+}
+
+/* Avoid oversized direct children on welcome screens. */
+.welcome-screen > *,
+.portal-selection-page > *,
+.role-selector-page > *,
+.role-selection-page > * {
+  max-width: 100%;
+}
+
+/* Keep the layout usable on smaller screens. */
+@media (max-width: 800px) {
+  .app-shell {
+    min-width: 0;
+  }
+
+  .main-content,
+  .page-content {
+    min-width: 0;
+    max-width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+  }
+}

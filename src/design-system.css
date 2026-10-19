@@ -1,0 +1,180 @@
+
+/* Mentor Connect — shared visual design system
+   Imported after the application and theme stylesheets. */
+
+:root {
+  --mc-bg: #f7f8f3;
+  --mc-surface: #ffffff;
+  --mc-surface-soft: #f3f7f3;
+  --mc-ink: #172923;
+  --mc-muted: #687770;
+  --mc-border: #e1e9e3;
+
+  --mc-green-950: #102c22;
+  --mc-green-900: #12382b;
+  --mc-green-800: #205b42;
+  --mc-green-700: #287451;
+  --mc-green-100: #e3f0e7;
+  --mc-green-50: #f0f8f2;
+
+  --mc-focus: #47a879;
+
+  --mc-shadow-sm: 0 2px 8px rgba(20, 48, 35, 0.05);
+  --mc-shadow-md: 0 10px 28px rgba(20, 48, 35, 0.09);
+  --mc-shadow-hover: 0 14px 32px rgba(20, 48, 35, 0.12);
+
+  --mc-radius-sm: 10px;
+  --mc-radius-md: 14px;
+  --mc-radius-lg: 20px;
+
+  --mc-motion-fast: 140ms;
+  --mc-motion: 200ms;
+  --mc-ease: cubic-bezier(0.2, 0.7, 0.25, 1);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  color: var(--mc-ink);
+  background: var(--mc-bg);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+button,
+input,
+textarea,
+select {
+  font-family: inherit;
+}
+
+button {
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background-color var(--mc-motion-fast) var(--mc-ease),
+    color var(--mc-motion-fast) var(--mc-ease),
+    border-color var(--mc-motion-fast) var(--mc-ease),
+    box-shadow var(--mc-motion) var(--mc-ease),
+    transform var(--mc-motion-fast) var(--mc-ease),
+    opacity var(--mc-motion-fast) var(--mc-ease);
+}
+
+button:not(:disabled) {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.58;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 3px solid rgba(71, 168, 121, 0.45);
+  outline-offset: 2px;
+}
+
+input,
+textarea,
+select {
+  transition:
+    border-color var(--mc-motion) var(--mc-ease),
+    box-shadow var(--mc-motion) var(--mc-ease),
+    background-color var(--mc-motion) var(--mc-ease);
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: var(--mc-focus);
+  box-shadow: 0 0 0 3px rgba(71, 168, 121, 0.13);
+}
+
+/* Shared cards and panels */
+.session-card,
+.mentor-card,
+.recommendation-card,
+.role-selection-card,
+.booking-notice,
+.empty-state,
+.art-card {
+  transition:
+    transform var(--mc-motion) var(--mc-ease),
+    box-shadow var(--mc-motion) var(--mc-ease),
+    border-color var(--mc-motion) var(--mc-ease),
+    background-color var(--mc-motion) var(--mc-ease);
+}
+
+.session-card:hover,
+.mentor-card:hover,
+.recommendation-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--mc-shadow-md);
+  border-color: #cbdccf;
+}
+
+/* Navigation feedback without changing active-page logic */
+.nav-item {
+  transition:
+    color var(--mc-motion-fast) var(--mc-ease),
+    background-color var(--mc-motion) var(--mc-ease),
+    transform var(--mc-motion-fast) var(--mc-ease);
+}
+
+/* Button feedback */
+.primary-button:hover:not(:disabled),
+.book-button:hover:not(:disabled),
+button[type="submit"]:hover:not(:disabled) {
+  box-shadow: var(--mc-shadow-sm);
+}
+
+.primary-button:active:not(:disabled),
+.book-button:active:not(:disabled),
+button[type="submit"]:active:not(:disabled) {
+  box-shadow: none;
+}
+
+/* Gentle page entrance */
+.simple-page,
+.welcome,
+.chat-panel,
+.chatbot-panel {
+  animation: mc-fade-up 240ms var(--mc-ease) both;
+}
+
+@keyframes mc-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Keep Mentor Connect branding consistent across screens */
+.role-selection-brand strong {
+  color: #102c22 !important;
+}
+
+.role-selection-brand strong span {
+  color: #16865d !important;
+}

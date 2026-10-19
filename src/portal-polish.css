@@ -1,0 +1,258 @@
+
+/* Mentor Connect — Deep Forest & Ivory portal chooser
+   Keep this as the final welcome-screen layout stylesheet. */
+
+body:has(.role-selection-card) {
+  overflow-x: hidden;
+  overflow-y: auto;
+  background: #f7f8f3;
+}
+
+body:has(.role-selection-card) #root,
+body:has(.role-selection-card) #root > * {
+  min-height: 100vh;
+}
+
+/* Centre the landing page without clipping content on short screens. */
+body:has(.role-selection-card) .welcome-screen,
+body:has(.role-selection-card) .portal-selection-page,
+body:has(.role-selection-card) .role-selector-page,
+body:has(.role-selection-card) .role-selection-page {
+  width: 100%;
+  max-width: 100%;
+  min-height: 100vh;
+  margin: 0;
+  padding: clamp(20px, 4vh, 38px) 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 0;
+  overflow: visible;
+  background: #f7f8f3;
+}
+
+/* Brand */
+body:has(.role-selection-card) .brand {
+  margin: 0 auto 18px;
+}
+
+body:has(.role-selection-card) .brand-mark {
+  border-radius: 11px;
+}
+
+body:has(.role-selection-card) .brand strong {
+  letter-spacing: -0.65px;
+}
+
+body:has(.role-selection-card) .brand small {
+  letter-spacing: 0.12em;
+}
+
+/* Introductory copy */
+body:has(.role-selection-card) .eyebrow,
+body:has(.role-selection-card) .welcome-eyebrow {
+  color: #16865d;
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  line-height: 1.4;
+  margin: 0 0 10px;
+}
+
+body:has(.role-selection-card) h1 {
+  max-width: 650px;
+  margin: 0 auto 10px;
+  font-size: clamp(28px, 3vw, 42px);
+  line-height: 1.15;
+  letter-spacing: -0.8px;
+  text-align: center;
+}
+
+body:has(.role-selection-card) .welcome-copy,
+body:has(.role-selection-card) .welcome-subtitle,
+body:has(.role-selection-card) .role-selection-intro {
+  max-width: 620px;
+  margin: 0 auto 22px;
+  color: #687770;
+  font-size: 14px;
+  line-height: 1.55;
+  text-align: center;
+}
+
+/* Portal card collection */
+body:has(.role-selection-card) .role-selection-list,
+body:has(.role-selection-card) .role-cards,
+body:has(.role-selection-card) .portal-cards,
+body:has(.role-selection-card) .role-options {
+  width: min(100%, 760px);
+  max-width: 760px;
+  margin: 0 auto;
+  gap: 12px;
+}
+
+/* Individual portal cards */
+body:has(.role-selection-card) .role-selection-card {
+  width: 100%;
+  min-width: 0;
+  min-height: 76px;
+  padding: 12px 18px;
+  margin: 0 0 10px;
+  border: 1px solid #e1e9e3;
+  border-radius: 14px;
+  background: #ffffff;
+  color: #172923;
+  box-shadow: 0 3px 10px rgba(16, 44, 34, 0.04);
+  flex-shrink: 0;
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    transform 180ms ease;
+}
+
+body:has(.role-selection-card) .role-selection-card:last-child {
+  margin-bottom: 0;
+}
+
+body:has(.role-selection-card) .role-selection-card:hover {
+  border-color: #9dcdb4;
+  box-shadow: 0 8px 22px rgba(16, 65, 43, 0.08);
+  transform: translateY(-1px);
+}
+
+body:has(.role-selection-card) .role-selection-card h2,
+body:has(.role-selection-card) .role-selection-card h3,
+body:has(.role-selection-card) .role-selection-card strong {
+  color: #172923;
+  font-size: 16px;
+  font-weight: 650;
+  line-height: 1.25;
+}
+
+body:has(.role-selection-card) .role-selection-card p {
+  margin: 4px 0 0;
+  color: #687770;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+body:has(.role-selection-card) .role-selection-icon {
+  width: 42px;
+  height: 42px;
+  min-width: 42px;
+  border-radius: 11px;
+  background: #e3f0e7;
+  color: #176448;
+}
+
+/* Footer note */
+body:has(.role-selection-card) .demo-note,
+body:has(.role-selection-card) .portal-footer,
+body:has(.role-selection-card) .welcome-footer {
+  margin: 14px auto 0;
+  color: #7b8981;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-align: center;
+}
+
+/* Short desktop windows */
+@media (max-height: 760px) and (min-width: 601px) {
+  body:has(.role-selection-card) .welcome-screen,
+  body:has(.role-selection-card) .portal-selection-page,
+  body:has(.role-selection-card) .role-selector-page,
+  body:has(.role-selection-card) .role-selection-page {
+    padding-top: 14px;
+    padding-bottom: 14px;
+  }
+
+  body:has(.role-selection-card) .brand {
+    margin-bottom: 10px;
+  }
+
+  body:has(.role-selection-card) h1 {
+    font-size: clamp(25px, 2.4vw, 32px);
+  }
+
+  body:has(.role-selection-card) .welcome-copy,
+  body:has(.role-selection-card) .welcome-subtitle,
+  body:has(.role-selection-card) .role-selection-intro {
+    margin-bottom: 12px;
+  }
+
+  body:has(.role-selection-card) .role-selection-card {
+    min-height: 68px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    margin-bottom: 8px;
+  }
+}
+
+/* Mobile: allow natural page scrolling and card growth. */
+@media (max-width: 600px) {
+  body:has(.role-selection-card) .welcome-screen,
+  body:has(.role-selection-card) .portal-selection-page,
+  body:has(.role-selection-card) .role-selector-page,
+  body:has(.role-selection-card) .role-selection-page {
+    min-height: 100vh;
+    padding: 24px 16px;
+    justify-content: flex-start;
+  }
+
+  body:has(.role-selection-card) .brand {
+    margin-bottom: 20px;
+  }
+
+  body:has(.role-selection-card) h1 {
+    font-size: clamp(27px, 7vw, 34px);
+  }
+
+  body:has(.role-selection-card) .role-selection-list,
+  body:has(.role-selection-card) .role-cards,
+  body:has(.role-selection-card) .portal-cards,
+  body:has(.role-selection-card) .role-options {
+    width: 100%;
+  }
+
+  body:has(.role-selection-card) .role-selection-card {
+    min-height: 72px;
+    height: auto;
+    padding: 12px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body:has(.role-selection-card) .role-selection-card {
+    transition: none;
+  }
+}
+
+
+/* Final welcome-screen visual refinements */
+
+/* Keep the brand colours consistent with the forest-green theme. */
+body:has(.role-selection-card) .brand strong,
+body:has(.role-selection-card) .brand strong span {
+  color: #102c22 !important;
+}
+
+/* Centre the eyebrow, headline, and subtitle as one composition. */
+body:has(.role-selection-card) .eyebrow,
+body:has(.role-selection-card) .welcome-eyebrow,
+body:has(.role-selection-card) h1,
+body:has(.role-selection-card) .welcome-copy,
+body:has(.role-selection-card) .welcome-subtitle,
+body:has(.role-selection-card) .role-selection-intro {
+  text-align: center !important;
+}
+
+/* Use forest green for the portal card arrows and accent icons. */
+body:has(.role-selection-card) .role-selection-card > span,
+body:has(.role-selection-card) .role-selection-card svg {
+  color: #205b42;
+}
+
+/* Keep keyboard navigation clearly visible. */
+body:has(.role-selection-card) .role-selection-card:focus-visible {
+  outline: 3px solid rgba(71, 168, 121, 0.5);
+  outline-offset: 3px;
+}
