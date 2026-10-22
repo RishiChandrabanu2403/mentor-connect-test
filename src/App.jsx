@@ -69,51 +69,179 @@ function mentorProfileText(mentor) {
   ].filter(Boolean).join(' ')
 }
 
+const MATCH_STOP_WORDS = new Set([
+  'the', 'and', 'for', 'with', 'that', 'this', 'want', 'would', 'like',
+  'learn', 'about', 'help', 'from', 'into', 'have', 'how', 'can', 'who',
+  'what', 'are', 'you', 'your', 'need', 'work', 'working', 'make', 'please',
+  'mentor', 'mentorship', 'someone', 'experience', 'looking', 'career',
+  'guidance', 'advice', 'expert', 'experts', 'person', 'people', 'get', 'better',
+])
+
+// Map common ways students describe the same career area to a shared concept.
+// This is a transparent local matcher; it does not send student messages to an API.
+const MATCH_SYNONYMS = {
+  ux: ['ux', 'ui', 'uiux', 'user experience', 'user interface', 'usability', 'interaction design', 'product design', 'user research', 'wireframe', 'wireframing', 'prototype', 'prototyping'],
+  product: ['product', 'product manager', 'product management', 'roadmap', 'prioritisation', 'prioritization', 'requirements', 'product strategy', 'launch'],
+  data: ['data', 'analytics', 'analysis', 'analyst', 'dashboard', 'dashboards', 'reporting', 'business intelligence', 'bi', 'visualisation', 'visualization', 'tableau', 'power bi', 'excel', 'sql'],
+  marketing: ['marketing', 'digital marketing', 'seo', 'sem', 'campaign', 'campaigns', 'content marketing', 'social media', 'growth', 'brand', 'hubspot'],
+  ai: ['ai', 'artificial intelligence', 'machine learning', 'ml', 'deep learning', 'llm', 'llms', 'generative ai', 'genai', 'prompt engineering', 'automation', 'chatbot', 'natural language processing', 'nlp', 'computer vision'],
+  software: ['software', 'developer', 'development', 'programming', 'coding', 'engineer', 'engineering', 'full stack', 'frontend', 'front end', 'backend', 'back end', 'web development', 'api'],
+  design: ['design', 'designer', 'visual design', 'graphic design', 'figma', 'creative', 'creative direction', 'branding'],
+  business: ['business', 'strategy', 'operations', 'consulting', 'entrepreneurship', 'startup', 'startups', 'management'],
+  finance: ['finance', 'financial', 'investment', 'accounting', 'fintech', 'valuation', 'banking'],
+  hr: ['human resources', 'hr', 'recruitment', 'recruiting', 'talent acquisition', 'people operations'],
+  cybersecurity: ['cybersecurity', 'cyber security', 'security', 'penetration testing', 'ethical hacking', 'infosec'],
+  cloud: ['cloud', 'aws', 'azure', 'gcp', 'devops', 'infrastructure', 'kubernetes'],
+}
+
+const MATCH_FIELD_WEIGHTS = {
+  'Roles of Expertise': 3.2,
+  'AI Sub Domain': 3.0,
+  'AI Tools of Expertise': 2.8,
+  'Sectors of Expertise': 2.5,
+  'Domain': 2.4,
+  'Master Sector': 2.0,
+  'Built AI Product/Automation/Workflow': 1.8,
+  'Company': 0.35,
+  'Seniority': 0.2,
+}
+
 function normaliseWords(value) {
   return String(value || '')
     .toLowerCase()
+    .replace(/&/g, ' and ')
     .replace(/[^a-z0-9+#./ -]/g, ' ')
     .split(/[\s/.-]+/)
-    .filter(word => word.length > 2)
+    .map(word => word.trim())
+    .filter(word => word.length > 1 && !MATCH_STOP_WORDS.has(word))
+}
+
+function expandMatchConcepts(value) {
+  const text = String(value || '').toLowerCase().replace(/[^a-z0-9+#. -]/g, ' ')
+  const concepts = new Set(normaliseWords(text))
+  for (const [concept, aliases] of Object.entries(MATCH_SYNONYMS)) {
+    if (aliases.some(alias => {
+      const escaped = alias.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+      return new RegExp(`(^|[^a-z0-9])${escaped}([^a-z0-9]|$)`, 'i').test(text)
+    })) concepts.add(concept)
+  }
+  return concepts
 }
 
 function scoreMentorMatch(query, mentor) {
-  const queryText = query.toLowerCase()
-  const profileText = mentorProfileText(mentor).toLowerCase()
-  const queryWords = [...new Set(normaliseWords(query))]
-  const profileWords = new Set(normaliseWords(profileText))
-  const stopWords = new Set([
-    'the', 'and', 'for', 'with', 'that', 'this', 'want', 'would', 'like',
-    'learn', 'about', 'help', 'from', 'into', 'have', 'how', 'can', 'who',
-    'what', 'are', 'you', 'your', 'need', 'work', 'working', 'make'
-  ])
-  const usefulWords = queryWords.filter(word => !stopWords.has(word))
+  const queryText = String(query || '').toLowerCase()
+  const queryConcepts = expandMatchConcepts(queryText)
+  const profileFields = [
+    ['Roles of Expertise', mentor['Roles of Expertise']],
+    ['AI Sub Domain', mentor['AI Sub Domain']],
+    ['AI Tools of Expertise', mentor['AI Tools of Expertise']],
+    ['Sectors of Expertise', mentor['Sectors of Expertise']],
+    ['Domain', mentor.Domain],
+    ['Master Sector', mentor['Master Sector']],
+    ['Built AI Product/Automation/Workflow', mentor['Built AI Product/Automation/Workflow']],
+    ['Company', mentor.Company],
+    ['Seniority', mentor.Seniority],
+  ].filter(([, value]) => value && String(value).trim() && !['n/a', 'na', 'null', 'not available', '-'].includes(String(value).trim().toLowerCase()))
+
+  const evidence = []
   let score = 0
   let hits = 0
-  for (const word of usefulWords) {
-    if (profileWords.has(word)) {
-      score += 1
-      hits += 1
+  const matchedConcepts = new Set()
+
+  for (const [field, value] of profileFields) {
+    const fieldText = String(value).toLowerCase()
+    const fieldConcepts = expandMatchConcepts(fieldText)
+    const matched = [...queryConcepts].filter(concept => fieldConcepts.has(concept))
+    // Exact multiword phrase overlap gives a useful bonus without allowing company names
+    // or generic words to dominate the ranking.
+    const phraseBonus = queryText.length > 2 && fieldText.includes(queryText) ? 2 : 0
+    if (matched.length || phraseBonus) {
+      const weight = MATCH_FIELD_WEIGHTS[field] || 1
+      // Score each matching field independently. A concept appearing in a generic
+    // role must not prevent a more specific Domain/Master Sector match from scoring.
+    const fieldScore = matched.length * weight + phraseBonus
+      if (fieldScore > 0) {
+        score += fieldScore
+        hits += matched.length || 1
+        matched.forEach(concept => matchedConcepts.add(concept))
+        evidence.push({ field, value: String(value).trim(), matchedConcepts: matched, score: fieldScore })
+      }
     }
   }
 
-  const topicGroups = [
-    { terms: ['ux', 'ui', 'design', 'designer', 'usability', 'research', 'interaction'], fields: ['Roles of Expertise', 'Sectors of Expertise', 'Domain'] },
-    { terms: ['product', 'roadmap', 'pm', 'product management'], fields: ['Roles of Expertise', 'Sectors of Expertise', 'Domain'] },
-    { terms: ['analytics', 'tableau', 'excel', 'mixpanel', 'dashboard', 'data'], fields: ['Roles of Expertise', 'Sectors of Expertise', 'Domain', 'AI Tools of Expertise'] },
-    { terms: ['marketing', 'seo', 'campaign', 'hubspot', 'growth'], fields: ['Roles of Expertise', 'Sectors of Expertise', 'Domain', 'AI Tools of Expertise'] },
-    { terms: ['ai', 'artificial intelligence', 'machine learning', 'automation', 'llm'], fields: ['Domain', 'AI Sub Domain', 'AI Tools of Expertise', 'Built AI Product/Automation/Workflow'] },
-    { terms: ['software', 'developer', 'engineering', 'programming', 'technical'], fields: ['Roles of Expertise', 'Sectors of Expertise', 'Domain'] },
-  ]
-
-  for (const group of topicGroups) {
-    const queryHasTopic = group.terms.some(term => queryText.includes(term))
-    if (!queryHasTopic) continue
-    const mentorFields = group.fields.map(field => mentor[field] || '').join(' ').toLowerCase()
-    if (group.terms.some(term => mentorFields.includes(term))) score += 2
+  // For AI-focused requests, prioritise mentors whose primary Domain or Master
+  // Sector explicitly says AI over profiles that only mention AI among many roles.
+  const asksAboutAI = queryConcepts.has('ai')
+  if (asksAboutAI) {
+    const primaryDomain = String(mentor.Domain || '').toLowerCase().trim()
+    const masterSector = String(mentor['Master Sector'] || '').toLowerCase().trim()
+    if (/(^|[^a-z])ai([^a-z]|$)|artificial intelligence/.test(primaryDomain)) {
+      score += 10
+      evidence.push({ field: 'Domain (direct AI match)', value: String(mentor.Domain).trim(), matchedConcepts: ['ai'], score: 10 })
+    }
+    if (/(^|[^a-z])ai([^a-z]|$)|artificial intelligence/.test(masterSector)) {
+      score += 8
+      evidence.push({ field: 'Master Sector (direct AI match)', value: String(mentor['Master Sector']).trim(), matchedConcepts: ['ai'], score: 8 })
+    }
   }
 
-  return { score: hits ? score / Math.sqrt(usefulWords.length || 1) : score, hits }
+  // Reward profiles that cover more than one distinct part of the request, while
+  // keeping the result grounded in fields actually present on the mentor profile.
+  const coverageBonus = Math.max(0, matchedConcepts.size - 1) * 0.35
+  score += coverageBonus
+  evidence.sort((a, b) => b.score - a.score)
+  return {
+    score,
+    hits,
+    matchedConcepts: [...matchedConcepts],
+    evidence: evidence.slice(0, 4),
+  }
+}
+
+
+// Local, free semantic search. The model is served from public/models, so the
+// browser does not need to download model files from Hugging Face at runtime.
+let localEmbeddingPipelinePromise
+const localEmbeddingCache = new Map()
+
+async function getLocalEmbeddingPipeline() {
+  if (!localEmbeddingPipelinePromise) {
+    localEmbeddingPipelinePromise = import('@huggingface/transformers')
+      .then(({ pipeline, env }) => {
+        env.allowLocalModels = true
+        env.allowRemoteModels = false
+        env.localModelPath = '/models/'
+        return pipeline('feature-extraction', 'Xenova/all-MiniLM-L6-v2', { dtype: 'q8' })
+      })
+      .catch(error => {
+        localEmbeddingPipelinePromise = null
+        throw error
+      })
+  }
+  return localEmbeddingPipelinePromise
+}
+
+async function getLocalEmbedding(text) {
+  const key = String(text || '').trim()
+  if (localEmbeddingCache.has(key)) return localEmbeddingCache.get(key)
+  const extractor = await getLocalEmbeddingPipeline()
+  const output = await extractor(key, { pooling: 'mean', normalize: true })
+  const vector = Array.from(output.data)
+  localEmbeddingCache.set(key, vector)
+  return vector
+}
+
+function cosineSimilarity(a, b) {
+  if (!a || !b || a.length !== b.length || !a.length) return 0
+  let dot = 0
+  let normA = 0
+  let normB = 0
+  for (let i = 0; i < a.length; i++) {
+    dot += a[i] * b[i]
+    normA += a[i] * a[i]
+    normB += b[i] * b[i]
+  }
+  return dot / (Math.sqrt(normA) * Math.sqrt(normB) || 1)
 }
 
 function App() {
@@ -130,7 +258,7 @@ function App() {
   const [recommendedMentors, setRecommendedMentors] = useState([])
   const [mentorsLoading, setMentorsLoading] = useState(true)
   const [mentorLoadError, setMentorLoadError] = useState('')
-  const [semanticStatus, setSemanticStatus] = useState('loading')
+  const [semanticStatus, setSemanticStatus] = useState('ready')
   const [semanticError, setSemanticError] = useState('')
   const [message, setMessage] = useState('')
   const [chat, setChat] = useState([
@@ -533,7 +661,7 @@ function App() {
 
  
 async function sendMessage(text = message) {
-  const clean = text.trim()
+  const clean = String(text || '').trim()
   if (!clean) return
 
   setChat(previous => [...previous, { sender: 'user', text: clean }])
@@ -557,102 +685,98 @@ async function sendMessage(text = message) {
     return
   }
 
-  const normalised = clean.toLowerCase()
+  const normalised = clean.toLowerCase().replace(/[.!?]+$/g, '').trim()
   const vaguePhrases = [
     'help me', 'career advice', 'need advice', 'not sure', 'i need help',
-    'help with my career', 'what should i do', 'explore careers',
+    'help with my career', 'what should i do', 'explore careers', 'find a mentor',
+    'i need a mentor', 'career guidance',
   ]
-  if (clean.length < 8 || vaguePhrases.some(phrase => normalised === phrase)) {
+  const queryConcepts = expandMatchConcepts(clean)
+  const hasSpecificTopic = Object.keys(MATCH_SYNONYMS).some(concept => queryConcepts.has(concept))
+
+  // Short, meaningful topics such as "AI", "UX", or "ML" should still be searched.
+  if ((clean.length < 8 && !hasSpecificTopic) || vaguePhrases.includes(normalised)) {
     setChat(previous => [...previous, {
       sender: 'bot',
-      text: 'I can help with that. What kind of role or work interests you most — for example, UX/design, product management, analytics, marketing, or AI? You can also tell me what you enjoy doing or what you want to change in your current career.',
+      text: 'I can help you find a relevant mentor. What are you trying to do or learn? For example, you could say “I want to move into UX design”, “I need help with product management”, or “I want to learn how to use AI in marketing”. You can mention an industry, role, tool, or career change.',
     }])
     return
   }
 
-  const scored = mentors
-    .filter(mentor => accountStateForMentor(mentor) !== 'Suspended')
-    .map(mentor => {
-      const match = scoreMentorMatch(clean, mentor)
-      const evidenceFields = [
-        ['Domain', mentor.Domain],
-        ['Master Sector', mentor['Master Sector']],
-        ['Sectors of Expertise', mentor['Sectors of Expertise']],
-        ['Roles of Expertise', mentor['Roles of Expertise']],
-        ['AI Sub Domain', mentor['AI Sub Domain']],
-        ['AI Tools of Expertise', mentor['AI Tools of Expertise']],
-      ].filter(([, value]) => value && value.trim() && !['n/a', 'na', 'null', 'not available', '-'].includes(value.trim().toLowerCase()))
+  const activeMentors = mentors.filter(mentor => accountStateForMentor(mentor) !== 'Suspended')
+  let scored = []
+  let usedSemanticSearch = false
 
-      const directDesignEvidence = evidenceFields.some(([, value]) =>
-        /ux|user experience|ui\/?ux|user research|interaction design|product design|usability|design/i.test(value)
-      )
+  try {
+    setSemanticStatus('loading')
+    const queryVector = await getLocalEmbedding(clean)
+    const embedded = await Promise.all(activeMentors.map(async mentor => ({
+      mentor,
+      semanticScore: cosineSimilarity(queryVector, await getLocalEmbedding(mentorProfileText(mentor))),
+      ...scoreMentorMatch(clean, mentor),
+    })))
+    scored = embedded.sort((a, b) => b.semanticScore - a.semanticScore)
+    usedSemanticSearch = true
+    setSemanticStatus('ready')
+    setSemanticError('')
+  } catch (error) {
+    console.error('Local semantic model could not be loaded; using keyword matching.', error)
+    setSemanticStatus('fallback')
+    setSemanticError('The local semantic model could not load, so keyword matching was used instead.')
+    scored = activeMentors
+      .map(mentor => ({ mentor, ...scoreMentorMatch(clean, mentor), semanticScore: 0 }))
+      .filter(result => result.score > 0 && result.hits > 0)
+      .sort((a, b) => b.score - a.score)
+  }
 
-      return { mentor, score: match.score, hits: match.hits, evidenceFields, directDesignEvidence }
-    })
-    .sort((a, b) => b.score - a.score)
-
-  const matches = scored.filter(result => result.score > 0 && result.hits > 0).slice(0, 3)
+  // Semantic results use cosine similarity; fallback results require profile evidence.
+  const topScore = scored[0]?.[usedSemanticSearch ? 'semanticScore' : 'score'] || 0
+  const matches = scored
+    .filter(result => usedSemanticSearch
+      ? result.semanticScore >= Math.max(0.22, topScore * 0.88)
+      : result.score >= Math.max(1.8, topScore * 0.28))
+    .slice(0, 3)
 
   if (!matches.length) {
     setChat(previous => [...previous, {
       sender: 'bot',
-      text: 'I couldn’t find a mentor whose listed profile clearly matches those terms. Could you tell me a little more about the role, industry, or skills you want to develop? I’ll use that to look again rather than recommend someone without enough evidence.',
+      text: 'I couldn’t find a strong match in the available mentor profiles. Could you make your goal more specific—for example, the role you want, a skill or tool you want to learn, or the industry you are interested in? I’d rather ask for clarification than recommend someone based on a weak match.',
     }])
     return
   }
 
   const recommendations = matches.map(result => {
     const mentor = result.mentor
-    const queryWords = [...new Set(normaliseWords(clean))].filter(word => ![
-      'the', 'and', 'for', 'with', 'that', 'this', 'want', 'would', 'like',
-      'learn', 'about', 'help', 'from', 'into', 'have', 'how', 'can', 'who',
-      'what', 'are', 'you', 'your', 'need', 'work', 'working', 'make'
-    ].includes(word))
-
-    // Explain the recommendation using only profile fields that actually
-    // contain one or more useful terms from the student's message.
-    const evidenceFields = [
-      ['Domain', mentor.Domain],
-      ['Master Sector', mentor['Master Sector']],
-      ['Sectors of Expertise', mentor['Sectors of Expertise']],
-      ['Roles of Expertise', mentor['Roles of Expertise']],
-      ['Seniority', mentor.Seniority],
-      ['AI Sub Domain', mentor['AI Sub Domain']],
-      ['AI Tools of Expertise', mentor['AI Tools of Expertise']],
-      ['Built AI Product/Automation/Workflow', mentor['Built AI Product/Automation/Workflow']],
-      ['Company', mentor.Company],
-    ].filter(([, value]) => value && String(value).trim() && ![
-      'n/a', 'na', 'null', 'not available', '-'
-    ].includes(String(value).trim().toLowerCase()))
-
-    const matchedEvidence = evidenceFields
-      .map(([field, value]) => {
-        const valueWords = new Set(normaliseWords(value))
-        const matchedWords = queryWords.filter(word => valueWords.has(word))
-        return { field, value, matchedWords }
-      })
-      .filter(item => item.matchedWords.length > 0)
-      .sort((a, b) => b.matchedWords.length - a.matchedWords.length)
+    const strongestEvidence = result.evidence
       .slice(0, 3)
-
-    const strongestEvidence = matchedEvidence
       .map(({ field, value }) => `${field}: ${value}`)
       .join(' · ')
 
-    const reason = strongestEvidence
-      ? `Why this may fit: your message matches ${strongestEvidence}.`
-      : 'This profile shares some keywords with your request. Review the listed expertise to confirm it fits your goal.'
+    const matchedTopics = result.matchedConcepts
+      .filter(concept => !MATCH_STOP_WORDS.has(concept))
+      .slice(0, 4)
+      .join(', ')
 
-    return { ...mentor, reason, semanticScore: result.score }
+    const reason = strongestEvidence
+      ? `Why this may fit: your request overlaps with ${strongestEvidence}${matchedTopics ? `. Related topics identified: ${matchedTopics}` : ''}.`
+      : 'This profile has some relevant terms, but the fit is not certain. Review the mentor’s listed expertise before booking.'
+
+    // This is a relative ranking score, not a probability of mentoring success.
+    // The strongest returned candidate is the 100% reference point for this query.
+    const rawMatchScore = usedSemanticSearch ? result.semanticScore : result.score
+    const matchPercentage = topScore > 0
+      ? Math.max(1, Math.min(100, Math.round((rawMatchScore / topScore) * 100)))
+      : 0
+
+    return { ...mentor, reason, semanticScore: result.semanticScore || 0, matchPercentage }
   })
 
   setRecommendedMentors(recommendations)
   setShowMentors(true)
   setChat(previous => [...previous, {
     sender: 'bot',
-    text: 'I compared your message with the skills and roles listed in the supplied mentor profiles. These are keyword-based matches, so review the evidence on each card before booking.',
+    text: `${usedSemanticSearch ? 'I used the local semantic model to compare the meaning of your goal with mentor profiles.' : 'The local semantic model could not load, so I used keyword matching as a fallback.'} Here are the ${recommendations.length} strongest profile matches, ranked by relative match score. 100% means the strongest match in this set for your query; it is not a probability of mentoring success. The explanations show which profile fields support each suggestion.`,
   }])
-
 }
 
   function requestBooking(mentor) {
@@ -1281,6 +1405,14 @@ async function sendMessage(text = message) {
                           <div className="mentor-info">
                             <strong>{mentor.Name}</strong>
                             <span>{mentor.Domain || mentor['Master Sector'] || 'Domain not listed'}</span>
+                            <div
+                              className="mentor-match-score"
+                              aria-label={`Relative profile match score: ${mentor.matchPercentage}%`}
+                              style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', margin: '8px 0 4px', padding: '5px 10px', borderRadius: '999px', background: '#e1f5e9', color: '#116849', fontSize: '13px', fontWeight: 700, width: 'fit-content' }}
+                            >
+                              <span>{mentor.matchPercentage}% match</span>
+                              <span style={{ fontWeight: 500, opacity: 0.8 }}>relative to top result</span>
+                            </div>
                             <small>
                               Sectors: {mentor['Sectors of Expertise'] || 'Not listed'}
                             </small>
@@ -1312,7 +1444,7 @@ async function sendMessage(text = message) {
                     ? 'Preparing mentor directory…'
                     : semanticStatus === 'error'
                       ? 'Mentor profile matching is unavailable because the directory could not load.'
-                      : 'Profile matching · Compares your words with the supplied mentor profiles'}
+                      : 'Smart profile matching · Weights role, skill, tool, and domain evidence'}
                 </div>
               </div>
 
